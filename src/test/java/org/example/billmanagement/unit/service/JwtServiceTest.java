@@ -77,4 +77,62 @@ class JwtServiceTest {
         assertTrue(isValid);
     }
 
+    @Test
+    void testValidateToken_InvalidUser() {
+        String username = "testUser";
+        String token = jwtService.generateToken(username);
+
+        when(userDetails.getUsername()).thenReturn("anotherUser");
+
+        boolean isValid = jwtService.validateToken(token, userDetails);
+
+        assertFalse(isValid);
+    }
+
+    @Test
+    void testValidateToken_ExpiredToken() {
+        String username = "testUser";
+        ReflectionTestUtils.setField(jwtService,"tokenValidityInSeconds",-3600); // Set token validity to the past
+
+        String token = jwtService.generateToken(username);
+
+        when(userDetails.getUsername()).thenReturn(username);
+
+        assertThrows(ExpiredJwtException.class, () -> {
+            ReflectionTestUtils.invokeMethod(jwtService,"isTokenExpired",token);
+        });
+    }
+
+    @Test
+    void testExtractClaim() {
+        String username = "testUser";
+        String token = jwtService.generateToken(username);
+
+        String extractedUsername = jwtService.extractClaim(token, Claims::getSubject);
+
+        assertEquals(username, extractedUsername);
+    }
+
+    @Test
+    void testIsTokenNotExpired() {
+        String username = "testUser";
+        String token = jwtService.generateToken(username);
+
+        boolean isExpired = ReflectionTestUtils.invokeMethod(jwtService,"isTokenExpired",token);
+
+        assertFalse(isExpired);
+    }
+
+    @Test
+    void testIsTokenExpired_ExpiredToken() {
+        String username = "testUser";
+        ReflectionTestUtils.setField(jwtService,"tokenValidityInSeconds",-3600);
+
+        String token = jwtService.generateToken(username);
+
+        assertThrows(ExpiredJwtException.class, () -> {
+            ReflectionTestUtils.invokeMethod(jwtService,"isTokenExpired",token);
+        });
+    }
+
 }
