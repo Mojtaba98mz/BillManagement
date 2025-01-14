@@ -64,5 +64,23 @@ class AuthenticationControllerTest {
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(jwtService, times(1)).generateToken("testuser");
     }
-    
+
+    @Test
+    void authorize_shouldThrowException_whenAuthenticationFails() {
+        LoginVM loginVM = new LoginVM();
+        loginVM.setUsername("testuser");
+        loginVM.setPassword("wrongpassword");
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new UsernameNotFoundException("Invalid user request!"));
+
+        UsernameNotFoundException exception = assertThrows(
+                UsernameNotFoundException.class,
+                () -> authenticationController.authorize(loginVM)
+        );
+
+        assertEquals("Invalid user request!", exception.getMessage());
+        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(jwtService, never()).generateToken(anyString());
+    }
 }
