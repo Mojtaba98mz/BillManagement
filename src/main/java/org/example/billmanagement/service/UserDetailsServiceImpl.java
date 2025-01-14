@@ -1,4 +1,4 @@
-package org.example.billmanagement.config.security;
+package org.example.billmanagement.service;
 
 
 import org.example.billmanagement.model.Role;
