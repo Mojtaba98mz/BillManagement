@@ -59,4 +59,9 @@ public class UserService {
         log.debug("Created Information for User: {}", user);
         return user;
     }
+
+    public Optional<User> findOneByUsername(String username) {
+        return userRepository.findOneByUsername(username);
+    }
+
 }
