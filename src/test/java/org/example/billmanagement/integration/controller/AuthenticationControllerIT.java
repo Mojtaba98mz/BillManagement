@@ -1,7 +1,7 @@
 package org.example.billmanagement.integration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.billmanagement.controller.vm.LoginVM;
+import org.example.billmanagement.controller.dto.LoginDto;
 import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class AuthenticationControllerIT {
 
         userRepository.saveAndFlush(user);
 
-        LoginVM login = new LoginVM();
+        LoginDto login = new LoginDto();
         login.setUsername("testUser");
         login.setPassword("test");
         mockMvc
@@ -54,7 +54,7 @@ class AuthenticationControllerIT {
 
     @Test
     void testAuthorizeFails() throws Exception {
-        LoginVM login = new LoginVM();
+        LoginDto login = new LoginDto();
         login.setUsername("wrong-user");
         login.setPassword("wrong_password");
         mockMvc

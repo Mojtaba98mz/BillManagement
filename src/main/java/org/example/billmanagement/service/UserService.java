@@ -1,6 +1,6 @@
 package org.example.billmanagement.service;
 
-import org.example.billmanagement.controller.vm.UserDto;
+import org.example.billmanagement.controller.dto.UserDto;
 import org.example.billmanagement.model.Role;
 import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.RoleRepository;

@@ -2,7 +2,7 @@ package org.example.billmanagement.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
-import org.example.billmanagement.controller.vm.LoginVM;
+import org.example.billmanagement.controller.dto.LoginDto;
 import org.example.billmanagement.service.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +28,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
+    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword())
+                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
         );
         if (authentication.isAuthenticated()) {
-            return new ResponseEntity<>(new JWTToken(jwtService.generateToken(loginVM.getUsername())), HttpStatus.OK);
+            return new ResponseEntity<>(new JWTToken(jwtService.generateToken(loginDto.getUsername())), HttpStatus.OK);
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }

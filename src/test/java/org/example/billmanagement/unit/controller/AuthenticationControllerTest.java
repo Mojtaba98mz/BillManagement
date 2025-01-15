@@ -2,7 +2,7 @@ package org.example.billmanagement.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.billmanagement.controller.AuthenticationController;
-import org.example.billmanagement.controller.vm.LoginVM;
+import org.example.billmanagement.controller.dto.LoginDto;
 import org.example.billmanagement.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,16 +42,16 @@ class AuthenticationControllerTest {
 
     @Test
     void authorize_shouldReturnToken_whenAuthenticationIsSuccessful() throws Exception {
-        LoginVM loginVM = new LoginVM();
-        loginVM.setUsername("testuser");
-        loginVM.setPassword("password");
+        LoginDto loginDto = new LoginDto();
+        loginDto.setUsername("testuser");
+        loginDto.setPassword("password");
 
         Authentication authentication = mock(Authentication.class);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
         when(jwtService.generateToken("testuser")).thenReturn("mockToken");
 
-        ResponseEntity<?> response = authenticationController.authorize(loginVM);
+        ResponseEntity<?> response = authenticationController.authorize(loginDto);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
@@ -67,16 +67,16 @@ class AuthenticationControllerTest {
 
     @Test
     void authorize_shouldThrowException_whenAuthenticationFails() {
-        LoginVM loginVM = new LoginVM();
-        loginVM.setUsername("testuser");
-        loginVM.setPassword("wrongpassword");
+        LoginDto loginDto = new LoginDto();
+        loginDto.setUsername("testuser");
+        loginDto.setPassword("wrongpassword");
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new UsernameNotFoundException("Invalid user request!"));
 
         UsernameNotFoundException exception = assertThrows(
                 UsernameNotFoundException.class,
-                () -> authenticationController.authorize(loginVM)
+                () -> authenticationController.authorize(loginDto)
         );
 
         assertEquals("Invalid user request!", exception.getMessage());

@@ -2,7 +2,7 @@ package org.example.billmanagement.controller;
 
 import jakarta.validation.Valid;
 import org.example.billmanagement.controller.exception.LoginAlreadyUsedException;
-import org.example.billmanagement.controller.vm.UserDto;
+import org.example.billmanagement.controller.dto.UserDto;
 import org.example.billmanagement.model.User;
 import org.example.billmanagement.service.UserService;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package org.example.billmanagement.controller.vm;
+package org.example.billmanagement.controller.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
