@@ -93,4 +93,54 @@ class GroupServiceIT {
         assertTrue(foundGroup.isPresent());
         assertEquals("Updated Title", foundGroup.get().getTitle());
     }
+    
+    @Test
+    void testFindAllGroups() {
+        Group group1 = new Group();
+        group1.setTitle("Group 1");
+        group1.setUser(testUser);
+        groupRepository.save(group1);
+
+        Group group2 = new Group();
+        group2.setTitle("Group 2");
+        group2.setUser(testUser);
+        groupRepository.save(group2);
+
+        Page<Group> groups = groupService.findAll(PageRequest.of(0, 10));
+
+        assertEquals(2, groups.getTotalElements());
+        assertThat(groups.getContent()).extracting(Group::getTitle).containsExactlyInAnyOrder("Group 1", "Group 2");
+    }
+
+    @Test
+    void testFindOneGroup() {
+        Group group = new Group();
+        group.setTitle("Test Group");
+        group.setUser(testUser);
+        group = groupRepository.save(group);
+
+        Optional<Group> foundGroup = groupService.findOne(group.getId());
+
+        assertTrue(foundGroup.isPresent());
+        assertEquals("Test Group", foundGroup.get().getTitle());
+    }
+
+    @Test
+    void testFindOneGroup_NotFound() {
+        Optional<Group> foundGroup = groupService.findOne(999L); // Non-existent group ID
+        assertFalse(foundGroup.isPresent());
+    }
+
+    @Test
+    void testDeleteGroup() {
+        Group group = new Group();
+        group.setTitle("Test Group");
+        group.setUser(testUser);
+        group = groupRepository.save(group);
+
+        groupService.delete(group.getId());
+
+        Optional<Group> foundGroup = groupRepository.findById(group.getId());
+        assertFalse(foundGroup.isPresent());
+    }
 }
