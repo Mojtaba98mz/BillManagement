@@ -26,14 +26,14 @@ class UserRepositoryTest {
     void testFindOneWithAuthoritiesByUsername_Found() {
         User user = new User();
         user.setId(1L);
-        user.setUsername("testuser");
-        when(userRepository.findOneWithAuthoritiesByUsername("testuser")).thenReturn(Optional.of(user));
+        user.setUsername("testUser");
+        when(userRepository.findOneWithAuthoritiesByUsername("testUser")).thenReturn(Optional.of(user));
 
-        Optional<User> result = userRepository.findOneWithAuthoritiesByUsername("testuser");
+        Optional<User> result = userRepository.findOneWithAuthoritiesByUsername("testUser");
 
         assertThat(result).isPresent();
-        assertThat(result.get().getUsername()).isEqualTo("testuser");
-        verify(userRepository, times(1)).findOneWithAuthoritiesByUsername("testuser");
+        assertThat(result.get().getUsername()).isEqualTo("testUser");
+        verify(userRepository, times(1)).findOneWithAuthoritiesByUsername("testUser");
     }
 
     @Test
@@ -44,5 +44,29 @@ class UserRepositoryTest {
 
         assertThat(result).isNotPresent();
         verify(userRepository, times(1)).findOneWithAuthoritiesByUsername("unknown");
+    }
+
+    @Test
+    void shouldFindOneByUsername() {
+        User testUser = new User();
+        testUser.setUsername("testUser");
+        testUser.setPassword("password123");
+
+        when(userRepository.findOneByUsername("testUser"))
+                .thenReturn(Optional.of(testUser));
+
+        Optional<User> result = userRepository.findOneByUsername("testUser");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getUsername()).isEqualTo("testUser");
+    }
+
+    @Test
+    void shouldReturnEmptyWhenUsernameNotFoundInFindOneByUsername() {
+        when(userRepository.findOneByUsername("nonExistingUser")).thenReturn(Optional.empty());
+
+        Optional<User> result = userRepository.findOneByUsername("nonExistingUser");
+
+        assertThat(result).isEmpty();
     }
 }
