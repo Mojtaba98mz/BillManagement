@@ -1,5 +1,6 @@
 package org.example.billmanagement.integration.service;
 
+import org.example.billmanagement.controller.dto.UserDto;
 import org.example.billmanagement.model.Role;
 import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.RoleRepository;
@@ -36,6 +37,23 @@ class UserServiceIT {
         Role defaultRole = new Role();
         defaultRole.setName("ROLE_USER");
         roleRepository.save(defaultRole);
+    }
+
+    @Test
+    void shouldCreateUserAndPersistInDatabase() {
+        UserDto userDto = new UserDto();
+        userDto.setUsername("testuser");
+        userDto.setPassword("password");
+        userDto.setFirstName("Test");
+        userDto.setLastName("User");
+
+        userService.createUser(userDto);
+
+        Optional<User> foundUser = userRepository.findOneByUsername("testuser");
+        assertThat(foundUser).isPresent();
+        assertThat(foundUser.get().getUsername()).isEqualTo("testuser");
+        assertThat(foundUser.get().getAuthorities()).hasSize(1);
+        assertThat(foundUser.get().getAuthorities()).extracting("name").contains("ROLE_USER");
     }
 
     @Test
