@@ -66,4 +66,17 @@ class UserRepositoryIT {
             entityManager.persistAndFlush(invalidUser);
         });
     }
+
+    @Test
+    void shouldFindOneByUsername() {
+        Optional<User> foundUser = userRepository.findOneByUsername("testUser");
+        assertThat(foundUser).isPresent();
+        assertThat(foundUser.get().getUsername()).isEqualTo("testUser");
+    }
+
+    @Test
+    void shouldReturnEmptyWhenUsernameNotFoundInFindOneByUsername() {
+        Optional<User> foundUser = userRepository.findOneByUsername("nonExistingUser");
+        assertThat(foundUser).isEmpty();
+    }
 }
