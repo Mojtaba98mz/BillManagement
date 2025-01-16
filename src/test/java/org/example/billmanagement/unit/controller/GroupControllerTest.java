@@ -97,4 +97,51 @@ class GroupControllerTest {
 
         assertThrows(BadRequestAlertException.class, () -> groupController.updateGroup(id, group));
     }
+
+    @Test
+    void testGetAllGroups() {
+        Pageable pageable = Pageable.unpaged();
+        Page<Group> page = new PageImpl<>(Collections.singletonList(new Group()));
+        when(groupService.findAll(pageable)).thenReturn(page);
+
+        ResponseEntity<List<Group>> response = groupController.getAllGroups(pageable);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, response.getBody().size());
+        verify(groupService, times(1)).findAll(pageable);
+    }
+
+    @Test
+    void testGetGroup_Success() {
+        Long id = 1L;
+        Group group = new Group();
+        when(groupService.findOne(id)).thenReturn(Optional.of(group));
+
+        ResponseEntity<Group> response = groupController.getGroup(id);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(group, response.getBody());
+        verify(groupService, times(1)).findOne(id);
+    }
+
+    @Test
+    void testGetGroup_NotFound() {
+        Long id = 1L;
+        when(groupService.findOne(id)).thenReturn(Optional.empty());
+
+        ResponseEntity<Group> response = groupController.getGroup(id);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(groupService, times(1)).findOne(id);
+    }
+
+    @Test
+    void testDeleteGroup() {
+        Long id = 1L;
+
+        ResponseEntity<Void> response = groupController.deleteGroup(id);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(groupService, times(1)).delete(id);
+    }
 }
