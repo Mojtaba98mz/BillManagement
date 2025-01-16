@@ -7,7 +7,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 
 public class ResponseUtil {
-    public static <T> ResponseEntity<T> wrapOrNotFound(Optional<T> result) {
-        return (ResponseEntity) result.map((response) -> ResponseEntity.ok().body(result)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public static <T> ResponseEntity<T> wrapOrNotFound(Optional<T> optional) {
+        return optional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 }
