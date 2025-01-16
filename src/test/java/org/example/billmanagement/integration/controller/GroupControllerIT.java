@@ -115,4 +115,40 @@ class GroupControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Test Group"));
     }
+
+    @Test
+    void testDeleteGroup() throws Exception {
+        Group group = new Group();
+        group.setTitle("Test Group");
+        group = groupRepository.save(group);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/groups/{id}", group.getId()))
+                .andExpect(status().isNoContent());
+
+        assertThat(groupRepository.findById(group.getId())).isEmpty();
+    }
+
+    @Test
+    void testUpdateGroup_InvalidId() throws Exception {
+        Group group = new Group();
+        group.setId(1L);
+        group.setTitle("Test Group");
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/groups/{id}", 2L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsBytes(group)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdateGroup_EntityNotFound() throws Exception {
+        Group group = new Group();
+        group.setId(1L);
+        group.setTitle("Test Group");
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/groups/{id}", group.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsBytes(group)))
+                .andExpect(status().isBadRequest());
+    }
 }
