@@ -5,9 +5,11 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.example.billmanagement.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -16,6 +18,7 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
 
     @InjectMocks
@@ -29,8 +32,6 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        jwtService = new JwtService();
         ReflectionTestUtils.setField(jwtService,"jwtKey",SECRET_KEY);
         ReflectionTestUtils.setField(jwtService,"tokenValidityInSeconds",TOKEN_VALIDITY);
     }
@@ -95,8 +96,6 @@ class JwtServiceTest {
         ReflectionTestUtils.setField(jwtService,"tokenValidityInSeconds",-3600); // Set token validity to the past
 
         String token = jwtService.generateToken(username);
-
-        when(userDetails.getUsername()).thenReturn(username);
 
         assertThrows(ExpiredJwtException.class, () -> {
             ReflectionTestUtils.invokeMethod(jwtService,"isTokenExpired",token);
