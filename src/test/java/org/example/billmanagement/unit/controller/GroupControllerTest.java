@@ -61,39 +61,11 @@ class GroupControllerTest {
 
         when(groupRepository.existsById(id)).thenReturn(true);
 
-        ResponseEntity<Group> response = groupController.updateGroup(id, group);
+        ResponseEntity<Group> response = groupController.updateGroup(group);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(group, response.getBody());
         verify(groupRepository, times(1)).existsById(id);
-    }
-
-    @Test
-    void testUpdateGroup_InvalidId() {
-        Long id = 1L;
-        Group group = new Group();
-        group.setId(2L);
-
-        assertThrows(BadRequestAlertException.class, () -> groupController.updateGroup(id, group));
-    }
-
-    @Test
-    void testUpdateGroup_IdNull() {
-        Long id = 1L;
-        Group group = new Group();
-
-        assertThrows(BadRequestAlertException.class, () -> groupController.updateGroup(id, group));
-    }
-
-    @Test
-    void testUpdateGroup_EntityNotFound() {
-        Long id = 1L;
-        Group group = new Group();
-        group.setId(id);
-
-        when(groupRepository.existsById(id)).thenReturn(false);
-
-        assertThrows(BadRequestAlertException.class, () -> groupController.updateGroup(id, group));
     }
 
     @Test

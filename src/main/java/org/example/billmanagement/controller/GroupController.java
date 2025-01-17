@@ -29,28 +29,20 @@ public class GroupController {
 
     private final GroupService groupService;
 
-    private final GroupRepository groupRepository;
-
     @PostMapping("")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody GroupDto groupDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(groupService.save(groupDto));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Group> updateGroup(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Group group) {
-        log.debug("REST request to update Group : {}, {}", id, group);
+    @PutMapping("")
+    public ResponseEntity<Group> updateGroup(@Valid @RequestBody Group group) {
+        log.debug("REST request to update Group : {}", group);
         if (group.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, group.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
 
-        if (!groupRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(group);
+        group = groupService.update(group);
+        return ResponseEntity.ok().body(group);
     }
 
     @GetMapping("")

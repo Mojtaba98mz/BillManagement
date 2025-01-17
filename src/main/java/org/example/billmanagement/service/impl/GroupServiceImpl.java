@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.billmanagement.controller.dto.GroupDto;
+import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Group;
 import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.GroupRepository;
@@ -41,6 +42,12 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Group update(Group group) {
         log.debug("Request to update Group : {}", group);
+        User user = userRepository.findOneByUsername(SecurityUtils.getCurrentUsername())
+                .orElseThrow(()-> new BadRequestAlertException("Entity not found", "user", "idnotfound"));
+        if (!groupRepository.existsById(group.getId())) {
+            throw new BadRequestAlertException("Entity not found", "group", "idnotfound");
+        }
+        group.setUser(user);
         return groupRepository.save(group);
     }
 
