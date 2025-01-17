@@ -115,15 +115,15 @@ public class MemberControllerTest {
 
     @Test
     public void testGetAllMembers_Success() {
-        when(memberService.findAll(any(Pageable.class))).thenReturn(memberPage);
+        when(memberService.findAll(memberDto.getGroupId(),any(Pageable.class))).thenReturn(memberPage);
 
-        ResponseEntity<List<Member>> response = memberController.getAllMembers(Pageable.unpaged());
+        ResponseEntity<List<Member>> response = memberController.getAllMembers(memberDto.getGroupId(),Pageable.unpaged());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
         assertEquals(member, response.getBody().get(0));
 
-        verify(memberService, times(1)).findAll(any(Pageable.class));
+        verify(memberService, times(1)).findAll(memberDto.getGroupId(),any(Pageable.class));
     }
 
     @Test

@@ -34,7 +34,7 @@ public class MemberServiceImpl implements MemberService {
         log.debug("Request to save Member : {}", memberDto);
 
         Group group = groupRepository.findById(memberDto.getGroupId())
-                .orElseThrow(()->new EntityNotFoundException("Entity Group not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Entity Group not found"));
         Member member = Member.builder().name(memberDto.getName())
                 .group(group).build();
         return memberRepository.save(member);
@@ -48,9 +48,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Member> findAll(Pageable pageable) {
+    public Page<Member> findAll(Long groupId, Pageable pageable) {
         log.debug("Request to get all Members");
-        return memberRepository.findAll(pageable);
+        return memberRepository.findAllByGroupId(groupId, pageable);
     }
 
     @Override

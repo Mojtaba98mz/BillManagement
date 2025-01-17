@@ -62,9 +62,10 @@ public class MemberController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Member>> getAllMembers(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<Member>> getAllMembers(@RequestParam(value = "groupId") final Long groupId,
+                                                      @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get a page of Members");
-        Page<Member> page = memberService.findAll(pageable);
+        Page<Member> page = memberService.findAll(groupId,pageable);
         return ResponseEntity.ok().body(page.getContent());
     }
 

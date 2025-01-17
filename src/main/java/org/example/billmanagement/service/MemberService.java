@@ -13,7 +13,7 @@ public interface MemberService {
 
     Member update(Member member);
 
-    Page<Member> findAll(Pageable pageable);
+    Page<Member> findAll(Long groupId,Pageable pageable);
 
     Optional<Member> findOne(Long id);
 
