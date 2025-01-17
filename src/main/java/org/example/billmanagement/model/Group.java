@@ -3,20 +3,20 @@ package org.example.billmanagement.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "groups")
-@Data
-public class Group implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class Group {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -35,22 +35,6 @@ public class Group implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private User user;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Group)) {
-            return false;
-        }
-        return getId() != null && getId().equals(((Group) o).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 
     @Override
     public String toString() {

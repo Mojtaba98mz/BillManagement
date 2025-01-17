@@ -2,18 +2,18 @@ package org.example.billmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "bill")
-@Data
-public class Bill implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class Bill {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -27,22 +27,6 @@ public class Bill implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Member member;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Bill)) {
-            return false;
-        }
-        return getId() != null && getId().equals(((Bill) o).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 
     @Override
     public String toString() {
