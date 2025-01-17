@@ -55,7 +55,6 @@ class GroupServiceIT {
     void testSaveGroup() {
         GroupDto groupDto = new GroupDto();
         groupDto.setTitle("Test Group");
-        groupDto.setUserId(testUser.getId());
 
         Group savedGroup = groupService.save(groupDto);
 
@@ -66,15 +65,6 @@ class GroupServiceIT {
         Optional<Group> foundGroup = groupRepository.findById(savedGroup.getId());
         assertTrue(foundGroup.isPresent());
         assertEquals("Test Group", foundGroup.get().getTitle());
-    }
-
-    @Test
-    void testSaveGroup_UserNotFound() {
-        GroupDto groupDto = new GroupDto();
-        groupDto.setTitle("Test Group");
-        groupDto.setUserId(999L); // Non-existent user ID
-
-        assertThrows(EntityNotFoundException.class, () -> groupService.save(groupDto));
     }
 
     @Test

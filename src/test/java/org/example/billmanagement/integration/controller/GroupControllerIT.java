@@ -57,7 +57,6 @@ class GroupControllerIT {
     void testCreateGroup() throws Exception {
         GroupDto groupDto = new GroupDto();
         groupDto.setTitle("Test Group");
-        groupDto.setUserId(1L);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/groups")
                         .contentType(MediaType.APPLICATION_JSON)

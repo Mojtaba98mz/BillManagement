@@ -48,7 +48,7 @@ public class GroupServiceImpl implements GroupService {
     @Transactional(readOnly = true)
     public Page<Group> findAll(Pageable pageable) {
         log.debug("Request to get all Groups");
-        return groupRepository.findAll(pageable);
+        return groupRepository.findByUsername(SecurityUtils.getCurrentUsername(), pageable);
     }
 
     @Override
