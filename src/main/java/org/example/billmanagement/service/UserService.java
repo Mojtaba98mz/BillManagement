@@ -1,12 +1,12 @@
 package org.example.billmanagement.service;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.billmanagement.controller.dto.UserDto;
 import org.example.billmanagement.model.Role;
 import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.RoleRepository;
 import org.example.billmanagement.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
+@AllArgsConstructor
 public class UserService {
-
-    private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
 
@@ -28,24 +28,7 @@ public class UserService {
 
     private final RoleRepository roleRepository;
 
-    public UserService(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            RoleRepository roleRepository
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
-    }
-
-
     public User createUser(UserDto userDto) {
-        User user = new User();
-        user.setUsername(userDto.getUsername().toLowerCase());
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
-        user.setPassword(encryptedPassword);
         Set<String> defaultAuthorities = new HashSet<>();
         defaultAuthorities.add("ROLE_USER");
         Set<Role> authorities = defaultAuthorities
@@ -54,7 +37,12 @@ public class UserService {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-        user.setAuthorities(authorities);
+
+        User user = User.builder().username(userDto.getUsername())
+                .firstName(userDto.getFirstName())
+                .lastName(userDto.getLastName())
+                .password(passwordEncoder.encode(userDto.getPassword()))
+                .authorities(authorities).build();
         userRepository.save(user);
         log.debug("Created Information for User: {}", user);
         return user;

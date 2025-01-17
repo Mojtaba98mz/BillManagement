@@ -1,5 +1,7 @@
 package org.example.billmanagement.controller;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.billmanagement.controller.dto.BillDto;
 import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Bill;
@@ -21,9 +23,9 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bills")
+@Slf4j
+@AllArgsConstructor
 public class BillController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BillController.class);
 
     private static final String ENTITY_NAME = "bill";
 
@@ -31,21 +33,16 @@ public class BillController {
 
     private final BillRepository billRepository;
 
-    public BillController(BillService billService, BillRepository billRepository) {
-        this.billService = billService;
-        this.billRepository = billRepository;
-    }
-
     @PostMapping("")
     public ResponseEntity<Bill> createBill(@RequestBody BillDto billDto) {
-        LOG.debug("REST request to save Bill : {}", billDto);
+        log.debug("REST request to save Bill : {}", billDto);
         Bill bill = billService.save(billDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(bill);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Bill> updateBill(@PathVariable(value = "id", required = false) final Long id, @RequestBody Bill bill) {
-        LOG.debug("REST request to update Bill : {}, {}", id, bill);
+        log.debug("REST request to update Bill : {}, {}", id, bill);
         if (bill.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -63,21 +60,21 @@ public class BillController {
 
     @GetMapping("")
     public ResponseEntity<List<Bill>> getAllBills(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
-        LOG.debug("REST request to get a page of Bills");
+        log.debug("REST request to get a page of Bills");
         Page<Bill> page = billService.findAll(pageable);
         return ResponseEntity.ok().body(page.getContent());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Bill> getBill(@PathVariable("id") Long id) {
-        LOG.debug("REST request to get Bill : {}", id);
+        log.debug("REST request to get Bill : {}", id);
         Optional<Bill> bill = billService.findOne(id);
         return ResponseUtil.wrapOrNotFound(bill);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBill(@PathVariable("id") Long id) {
-        LOG.debug("REST request to delete Bill : {}", id);
+        log.debug("REST request to delete Bill : {}", id);
         billService.delete(id);
         return ResponseEntity.noContent().build();
     }

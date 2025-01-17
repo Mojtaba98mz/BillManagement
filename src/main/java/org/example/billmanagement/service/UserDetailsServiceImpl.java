@@ -1,6 +1,7 @@
 package org.example.billmanagement.service;
 
 
+import lombok.AllArgsConstructor;
 import org.example.billmanagement.model.Role;
 import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.UserRepository;
@@ -13,14 +14,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-
     private final UserRepository userRepository;
-
-    public UserDetailsServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
