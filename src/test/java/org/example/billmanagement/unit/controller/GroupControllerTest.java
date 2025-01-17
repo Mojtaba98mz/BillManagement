@@ -23,8 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -33,9 +32,6 @@ class GroupControllerTest {
 
     @Mock
     private GroupService groupService;
-
-    @Mock
-    private GroupRepository groupRepository;
 
     @InjectMocks
     private GroupController groupController;
@@ -54,18 +50,19 @@ class GroupControllerTest {
     }
 
     @Test
-    void testUpdateGroup_Success() {
-        Long id = 1L;
+    public void testUpdateGroup_Success() {
         Group group = new Group();
-        group.setId(id);
+        group.setId(1L);
 
-        when(groupRepository.existsById(id)).thenReturn(true);
+        when(groupService.update(any(Group.class))).thenReturn(group);
 
         ResponseEntity<Group> response = groupController.updateGroup(group);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(group, response.getBody());
-        verify(groupRepository, times(1)).existsById(id);
+
+        verify(groupService, times(1)).update(any(Group.class));
     }
 
     @Test

@@ -2,11 +2,13 @@ package org.example.billmanagement.unit.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.example.billmanagement.controller.dto.MemberDto;
+import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Group;
 import org.example.billmanagement.model.Member;
 import org.example.billmanagement.repository.GroupRepository;
 import org.example.billmanagement.repository.MemberRepository;
 import org.example.billmanagement.service.impl.MemberServiceImpl;
+import org.example.billmanagement.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -31,6 +34,9 @@ public class MemberServiceTest {
 
     @Mock
     private GroupRepository groupRepository;
+
+    @Mock
+    private SecurityUtils securityUtils;
 
     @InjectMocks
     private MemberServiceImpl memberService;
@@ -87,29 +93,131 @@ public class MemberServiceTest {
     }
 
     @Test
-    void testUpdate() {
+    public void testUpdate_Success() {
+        // Arrange
+        Long groupId = 1L;
+        Member member = new Member();
+        member.setId(1L);
+        Group group = new Group();
+        group.setId(groupId);
+        String username = "testUser";
+
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+
+        when(securityUtils.getCurrentUsername()).thenReturn(username);
+
+        when(groupRepository.findByGroupIdAndUsername(groupId, username)).thenReturn(Optional.of(group));
         when(memberRepository.save(member)).thenReturn(member);
 
-        Member updatedMember = memberService.update(group.getId(), member);
+        Member result = memberService.update(groupId, member);
 
-        assertNotNull(updatedMember);
-        assertEquals(member.getId(), updatedMember.getId());
-        assertEquals(member.getName(), updatedMember.getName());
+        assertNotNull(result);
+        assertEquals(group, result.getGroup());
+        verify(groupRepository, times(1)).findById(groupId);
+        verify(memberRepository, times(1)).existsById(member.getId());
+        verify(groupRepository, times(1)).findByGroupIdAndUsername(groupId, username);
         verify(memberRepository, times(1)).save(member);
     }
 
     @Test
-    void testFindAll() {
-        Pageable pageable = mock(Pageable.class);
-        Page<Member> memberPage = new PageImpl<>(Collections.singletonList(member));
-        when(memberRepository.findAll(pageable)).thenReturn(memberPage);
+    public void testUpdate_GroupNotFound() {
+        Long groupId = 1L;
+        Member member = new Member();
+        member.setId(1L);
 
-        Page<Member> result = memberService.findAll(group.getId(), pageable);
+        when(groupRepository.findById(groupId)).thenReturn(Optional.empty());
+
+        assertThrows(BadRequestAlertException.class, () -> {
+            memberService.update(groupId, member);
+        });
+
+        verify(groupRepository, times(1)).findById(groupId);
+        verify(memberRepository, never()).existsById(any());
+        verify(memberRepository, never()).save(any());
+    }
+
+    @Test
+    public void testUpdate_MemberNotFound() {
+        Long groupId = 1L;
+        Member member = new Member();
+        member.setId(1L);
+        Group group = new Group();
+        group.setId(groupId);
+
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
+        when(memberRepository.existsById(member.getId())).thenReturn(false);
+
+        assertThrows(BadRequestAlertException.class, () -> {
+            memberService.update(groupId, member);
+        });
+
+        verify(groupRepository, times(1)).findById(groupId);
+        verify(memberRepository, times(1)).existsById(member.getId());
+        verify(memberRepository, never()).save(any());
+    }
+
+    @Test
+    public void testUpdate_AccessDenied() {
+        Long groupId = 1L;
+        Member member = new Member();
+        member.setId(1L);
+        Group group = new Group();
+        group.setId(groupId);
+        String username = "testUser";
+
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+
+        when(securityUtils.getCurrentUsername()).thenReturn(username);
+
+        when(groupRepository.findByGroupIdAndUsername(groupId, username)).thenReturn(Optional.empty());
+
+        assertThrows(AccessDeniedException.class, () -> {
+            memberService.update(groupId, member);
+        });
+
+        verify(groupRepository, times(1)).findById(groupId);
+        verify(memberRepository, times(1)).existsById(member.getId());
+        verify(groupRepository, times(1)).findByGroupIdAndUsername(groupId, username);
+        verify(memberRepository, never()).save(any());
+
+    }
+
+    @Test
+    public void testFindAll_Success() {
+        Long groupId = 1L;
+        String username = "testUser";
+        Pageable pageable = mock(Pageable.class);
+        Page<Member> expectedPage = new PageImpl<>(Collections.emptyList());
+
+        when(securityUtils.getCurrentUsername()).thenReturn(username);
+        when(groupRepository.findByGroupIdAndUsername(groupId, username)).thenReturn(Optional.of(new Group()));
+        when(memberRepository.findAllByGroupId(groupId, pageable)).thenReturn(expectedPage);
+
+        Page<Member> result = memberService.findAll(groupId, pageable);
 
         assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-        assertEquals(member, result.getContent().get(0));
-        verify(memberRepository, times(1)).findAll(pageable);
+        assertEquals(expectedPage, result);
+        verify(groupRepository, times(1)).findByGroupIdAndUsername(groupId, username);
+        verify(memberRepository, times(1)).findAllByGroupId(groupId, pageable);
+    }
+
+    @Test
+    public void testFindAll_AccessDenied() {
+        Long groupId = 1L;
+        String username = "testuser";
+        Pageable pageable = mock(Pageable.class);
+
+        when(securityUtils.getCurrentUsername()).thenReturn(username);
+        when(groupRepository.findByGroupIdAndUsername(groupId, username)).thenReturn(Optional.empty());
+
+        assertThrows(AccessDeniedException.class, () -> {
+            memberService.findAll(groupId, pageable);
+        });
+
+        verify(groupRepository, times(1)).findByGroupIdAndUsername(groupId, username);
+        verify(memberRepository, never()).findAllByGroupId(any(), any());
     }
 
     @Test

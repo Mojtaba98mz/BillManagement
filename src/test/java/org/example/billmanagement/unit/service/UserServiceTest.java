@@ -39,7 +39,7 @@ class UserServiceTest {
     @Test
     void shouldCreateUserSuccessfully() {
         UserDto userDto = new UserDto();
-        userDto.setUsername("testUser");
+        userDto.setUsername("testuser");
         userDto.setPassword("password");
         userDto.setFirstName("Test");
         userDto.setLastName("User");

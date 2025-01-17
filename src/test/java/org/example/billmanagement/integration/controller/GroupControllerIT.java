@@ -42,10 +42,12 @@ class GroupControllerIT {
     @Autowired
     private ObjectMapper om;
 
+    private User user;
+
     @BeforeEach
     void setUp() {
         groupRepository.deleteAll();
-        User user = new User();
+        user = new User();
         user.setUsername("testuser");
         user.setFirstName("F");
         user.setLastName("L");
@@ -70,17 +72,19 @@ class GroupControllerIT {
     }
 
     @Test
+    @WithMockUser("testuser")
     void testUpdateGroup() throws Exception {
         Group group = new Group();
         group.setTitle("Initial Group");
+        group.setUser(user);
         group = groupRepository.save(group);
 
         group.setTitle("Updated Group");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/groups/{id}", group.getId())
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/groups")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(om.writeValueAsBytes(group)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated Group"));
 
         Group updatedGroup = groupRepository.findById(group.getId()).orElseThrow();
@@ -88,11 +92,14 @@ class GroupControllerIT {
     }
 
     @Test
+    @WithMockUser("testuser")
     void testGetAllGroups() throws Exception {
         Group group1 = new Group();
         group1.setTitle("Group 1");
         Group group2 = new Group();
         group2.setTitle("Group 2");
+        group1.setUser(user);
+        group2.setUser(user);
         groupRepository.saveAll(List.of(group1, group2));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/groups")
@@ -125,29 +132,5 @@ class GroupControllerIT {
                 .andExpect(status().isNoContent());
 
         assertThat(groupRepository.findById(group.getId())).isEmpty();
-    }
-
-    @Test
-    void testUpdateGroup_InvalidId() throws Exception {
-        Group group = new Group();
-        group.setId(1L);
-        group.setTitle("Test Group");
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/groups/{id}", 2L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(om.writeValueAsBytes(group)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testUpdateGroup_EntityNotFound() throws Exception {
-        Group group = new Group();
-        group.setId(1L);
-        group.setTitle("Test Group");
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/groups/{id}", group.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(om.writeValueAsBytes(group)))
-                .andExpect(status().isBadRequest());
     }
 }

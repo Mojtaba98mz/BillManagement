@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +53,7 @@ class GroupServiceIT {
     }
 
     @Test
+    @WithMockUser("testuser")
     void testSaveGroup() {
         GroupDto groupDto = new GroupDto();
         groupDto.setTitle("Test Group");
@@ -68,6 +70,7 @@ class GroupServiceIT {
     }
 
     @Test
+    @WithMockUser("testuser")
     void testUpdateGroup() {
         Group group = new Group();
         group.setTitle("Initial Title");
@@ -85,6 +88,7 @@ class GroupServiceIT {
     }
     
     @Test
+    @WithMockUser("testuser")
     void testFindAllGroups() {
         Group group1 = new Group();
         group1.setTitle("Group 1");

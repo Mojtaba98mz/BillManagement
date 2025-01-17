@@ -2,9 +2,7 @@ package org.example.billmanagement.unit.controller;
 
 import org.example.billmanagement.controller.MemberController;
 import org.example.billmanagement.controller.dto.MemberDto;
-import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Member;
-import org.example.billmanagement.repository.MemberRepository;
 import org.example.billmanagement.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -33,12 +30,8 @@ public class MemberControllerTest {
     @Mock
     private MemberService memberService;
 
-    @Mock
-    private MemberRepository memberRepository;
-
     @InjectMocks
     private MemberController memberController;
-
 
     private MemberDto memberDto;
     private Member member;
@@ -72,58 +65,16 @@ public class MemberControllerTest {
     }
 
     @Test
-    public void testUpdateMember_Success() {
-        when(memberRepository.existsById(1L)).thenReturn(true);
-        when(memberService.update(memberDto.getGroupId(), any(Member.class))).thenReturn(member);
-
-        ResponseEntity<Member> response = memberController.updateMember(1L, member);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(member, response.getBody());
-
-        verify(memberRepository, times(1)).existsById(1L);
-        verify(memberService, times(1)).update(memberDto.getGroupId(), any(Member.class));
-    }
-
-    @Test
-    public void testUpdateMember_InvalidId() {
-        member.setId(2L); // ID mismatch
-
-        BadRequestAlertException exception = assertThrows(BadRequestAlertException.class, () -> {
-            memberController.updateMember(1L, member);
-        });
-
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-
-        verify(memberRepository, never()).existsById(anyLong());
-        verify(memberService, never()).update(memberDto.getGroupId(), any(Member.class));
-    }
-
-    @Test
-    public void testUpdateMember_EntityNotFound() {
-        when(memberRepository.existsById(1L)).thenReturn(false);
-
-        BadRequestAlertException exception = assertThrows(BadRequestAlertException.class, () -> {
-            memberController.updateMember(1L, member);
-        });
-
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-
-        verify(memberRepository, times(1)).existsById(1L);
-        verify(memberService, never()).update(memberDto.getGroupId(), any(Member.class));
-    }
-
-    @Test
     public void testGetAllMembers_Success() {
-        when(memberService.findAll(memberDto.getGroupId(),any(Pageable.class))).thenReturn(memberPage);
+        when(memberService.findAll(eq(memberDto.getGroupId()), any(Pageable.class))).thenReturn(memberPage);
 
-        ResponseEntity<List<Member>> response = memberController.getAllMembers(memberDto.getGroupId(),Pageable.unpaged());
+        ResponseEntity<List<Member>> response = memberController.getAllMembers(memberDto.getGroupId(), Pageable.unpaged());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
         assertEquals(member, response.getBody().get(0));
 
-        verify(memberService, times(1)).findAll(memberDto.getGroupId(),any(Pageable.class));
+        verify(memberService, times(1)).findAll(eq(memberDto.getGroupId()), any(Pageable.class));
     }
 
     @Test

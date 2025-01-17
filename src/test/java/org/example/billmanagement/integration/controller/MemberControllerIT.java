@@ -1,7 +1,9 @@
 package org.example.billmanagement.integration.controller;
 
+import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -9,8 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.billmanagement.controller.dto.MemberDto;
 import org.example.billmanagement.model.Group;
 import org.example.billmanagement.model.Member;
+import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.GroupRepository;
 import org.example.billmanagement.repository.MemberRepository;
+import org.example.billmanagement.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,17 +46,30 @@ public class MemberControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private Member member;
     private Group group;
     private MemberDto memberDto;
+
+    private User user;
 
     @BeforeEach
     public void setup() {
         member = new Member();
         member.setName("John Doe");
 
+        user = new User();
+        user.setUsername("testuser");
+        user.setFirstName("F");
+        user.setLastName("L");
+        user.setPassword("p".repeat(60));
+        userRepository.save(user);
+
         group = new Group();
         group.setTitle("Test Group");
+        group.setUser(user);
         group = groupRepository.save(group);
 
         memberDto = new MemberDto();
@@ -89,8 +106,10 @@ public class MemberControllerIT {
     }
 
     @Test
+    @WithMockUser("testuser")
     public void updateMember() throws Exception {
         // Initialize the database
+        member.setGroup(group);
         memberRepository.saveAndFlush(member);
 
         int databaseSizeBeforeUpdate = memberRepository.findAll().size();
@@ -99,7 +118,7 @@ public class MemberControllerIT {
         Member updatedMember = memberRepository.findById(member.getId()).get();
         updatedMember.setName("Jane");
 
-        mockMvc.perform(put("/api/members/{id}", member.getId())
+        mockMvc.perform(put("/api/members/{groupId}", group.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedMember)))
                 .andExpect(status().isOk());
@@ -120,15 +139,18 @@ public class MemberControllerIT {
     }
 
     @Test
-    public void getAllMembers() throws Exception {
-        // Initialize the database
+    @WithMockUser(username = "testuser")
+    void testGetAllMembers() throws Exception {
+        member.setGroup(group);
         memberRepository.saveAndFlush(member);
-
-        // Get all the members
-        mockMvc.perform(get("/api/members?sort=id,desc"))
+        mockMvc.perform(get("/api/members")
+                        .param("groupId", group.getId().toString())
+                        .param("page", "0")
+                        .param("size", "10")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(member.getId().intValue())))
+                .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$.[*].name").value(hasItem("John Doe")));
     }
 

@@ -29,6 +29,8 @@ public class MemberServiceImpl implements MemberService {
 
     private final GroupRepository groupRepository;
 
+    private final SecurityUtils securityUtils;
+
     @Override
     public Member save(MemberDto memberDto) {
         log.debug("Request to save Member : {}", memberDto);
@@ -49,7 +51,7 @@ public class MemberServiceImpl implements MemberService {
             throw new BadRequestAlertException("Entity not found", "member", "idnotfound");
         }
         // check user has right access
-        groupRepository.findByGroupIdAndUsername(groupId, SecurityUtils.getCurrentUsername())
+        groupRepository.findByGroupIdAndUsername(groupId, securityUtils.getCurrentUsername())
                         .orElseThrow(()-> new AccessDeniedException("IllegalAccess"));
         member.setGroup(group);
         return memberRepository.save(member);
@@ -59,7 +61,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional(readOnly = true)
     public Page<Member> findAll(Long groupId, Pageable pageable) {
         log.debug("Request to get all Members");
-        groupRepository.findByGroupIdAndUsername(groupId, SecurityUtils.getCurrentUsername())
+        groupRepository.findByGroupIdAndUsername(groupId, securityUtils.getCurrentUsername())
                 .orElseThrow(()-> new AccessDeniedException("IllegalAccess"));
         return memberRepository.findAllByGroupId(groupId, pageable);
     }

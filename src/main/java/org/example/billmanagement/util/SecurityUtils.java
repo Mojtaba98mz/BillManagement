@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+@Component
 public class SecurityUtils {
 
     /**
@@ -12,7 +13,7 @@ public class SecurityUtils {
      *
      * @return the UserDetails of the current authenticated user, or null if no user is authenticated.
      */
-    public static UserDetails getCurrentUser() {
+    public UserDetails getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             return (UserDetails) authentication.getPrincipal();
@@ -25,7 +26,7 @@ public class SecurityUtils {
      *
      * @return the username of the current authenticated user, or null if no user is authenticated.
      */
-    public static String getCurrentUsername() {
+    public String getCurrentUsername() {
         UserDetails userDetails = getCurrentUser();
         return userDetails != null ? userDetails.getUsername() : null;
     }

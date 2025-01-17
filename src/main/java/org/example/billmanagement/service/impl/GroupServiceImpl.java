@@ -28,11 +28,12 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     public Group save(GroupDto groupDto) {
         log.debug("Request to save Group : {}", groupDto);
-        User user = userRepository.findOneByUsername(SecurityUtils.getCurrentUsername())
+        User user = userRepository.findOneByUsername(securityUtils.getCurrentUsername())
                 .orElseThrow(() -> new EntityNotFoundException("Entity User not found"));
         Group group = Group.builder().title(groupDto.getTitle())
                 .user(user).build();
@@ -42,7 +43,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Group update(Group group) {
         log.debug("Request to update Group : {}", group);
-        User user = userRepository.findOneByUsername(SecurityUtils.getCurrentUsername())
+        User user = userRepository.findOneByUsername(securityUtils.getCurrentUsername())
                 .orElseThrow(()-> new BadRequestAlertException("Entity not found", "user", "idnotfound"));
         if (!groupRepository.existsById(group.getId())) {
             throw new BadRequestAlertException("Entity not found", "group", "idnotfound");
@@ -55,7 +56,7 @@ public class GroupServiceImpl implements GroupService {
     @Transactional(readOnly = true)
     public Page<Group> findAll(Pageable pageable) {
         log.debug("Request to get all Groups");
-        return groupRepository.findByUsername(SecurityUtils.getCurrentUsername(), pageable);
+        return groupRepository.findByUsername(securityUtils.getCurrentUsername(), pageable);
     }
 
     @Override
