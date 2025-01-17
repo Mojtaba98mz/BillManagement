@@ -2,16 +2,12 @@ package org.example.billmanagement.unit.controller;
 
 import org.example.billmanagement.controller.GroupController;
 import org.example.billmanagement.controller.dto.GroupDto;
-import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Group;
-import org.example.billmanagement.repository.GroupRepository;
 import org.example.billmanagement.service.GroupService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

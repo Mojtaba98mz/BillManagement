@@ -6,7 +6,6 @@ import org.example.billmanagement.model.Bill;
 import org.example.billmanagement.model.Member;
 import org.example.billmanagement.repository.BillRepository;
 import org.example.billmanagement.repository.MemberRepository;
-import org.example.billmanagement.service.BillService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

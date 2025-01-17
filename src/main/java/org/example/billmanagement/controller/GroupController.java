@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.billmanagement.controller.dto.GroupDto;
 import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Group;
-import org.example.billmanagement.repository.GroupRepository;
 import org.example.billmanagement.service.GroupService;
 import org.example.billmanagement.util.ResponseUtil;
 import org.springframework.data.domain.Page;
@@ -16,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RestController

@@ -11,8 +11,6 @@ import org.example.billmanagement.repository.GroupRepository;
 import org.example.billmanagement.repository.UserRepository;
 import org.example.billmanagement.service.GroupService;
 import org.example.billmanagement.util.SecurityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

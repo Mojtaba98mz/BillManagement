@@ -8,15 +8,12 @@ import org.example.billmanagement.model.Bill;
 import org.example.billmanagement.repository.BillRepository;
 import org.example.billmanagement.service.BillService;
 import org.example.billmanagement.util.ResponseUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
