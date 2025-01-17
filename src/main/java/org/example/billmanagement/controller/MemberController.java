@@ -1,6 +1,7 @@
 package org.example.billmanagement.controller;
 
 import jakarta.validation.Valid;
+import org.example.billmanagement.controller.dto.MemberDto;
 import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Member;
 import org.example.billmanagement.repository.MemberRepository;
@@ -37,12 +38,9 @@ public class MemberController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Member> createMember(@Valid @RequestBody Member member) {
-        LOG.debug("REST request to save Member : {}", member);
-        if (member.getId() != null) {
-            throw new BadRequestAlertException("A new member cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        member = memberService.save(member);
+    public ResponseEntity<Member> createMember(@Valid @RequestBody MemberDto memberDto) {
+        LOG.debug("REST request to save Member : {}", memberDto);
+        Member member = memberService.save(memberDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(member);
     }
 

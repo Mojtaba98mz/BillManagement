@@ -1,5 +1,6 @@
 package org.example.billmanagement.controller;
 
+import org.example.billmanagement.controller.dto.BillDto;
 import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Bill;
 import org.example.billmanagement.repository.BillRepository;
@@ -36,12 +37,9 @@ public class BillController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
-        LOG.debug("REST request to save Bill : {}", bill);
-        if (bill.getId() != null) {
-            throw new BadRequestAlertException("A new bill cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        bill = billService.save(bill);
+    public ResponseEntity<Bill> createBill(@RequestBody BillDto billDto) {
+        LOG.debug("REST request to save Bill : {}", billDto);
+        Bill bill = billService.save(billDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(bill);
     }
 
