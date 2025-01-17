@@ -11,9 +11,9 @@ public interface MemberService {
 
     Member save(MemberDto memberDto);
 
-    Member update(Member member);
+    Member update(Long groupId, Member member);
 
-    Page<Member> findAll(Long groupId,Pageable pageable);
+    Page<Member> findAll(Long groupId, Pageable pageable);
 
     Optional<Member> findOne(Long id);
 

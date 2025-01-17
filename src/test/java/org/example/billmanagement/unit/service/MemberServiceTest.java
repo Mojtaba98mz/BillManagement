@@ -90,7 +90,7 @@ public class MemberServiceTest {
     void testUpdate() {
         when(memberRepository.save(member)).thenReturn(member);
 
-        Member updatedMember = memberService.update(member);
+        Member updatedMember = memberService.update(group.getId(), member);
 
         assertNotNull(updatedMember);
         assertEquals(member.getId(), updatedMember.getId());
@@ -104,7 +104,7 @@ public class MemberServiceTest {
         Page<Member> memberPage = new PageImpl<>(Collections.singletonList(member));
         when(memberRepository.findAll(pageable)).thenReturn(memberPage);
 
-        Page<Member> result = memberService.findAll(pageable);
+        Page<Member> result = memberService.findAll(group.getId(), pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());

@@ -4,16 +4,16 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.billmanagement.controller.dto.MemberDto;
+import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Group;
 import org.example.billmanagement.model.Member;
-import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.GroupRepository;
 import org.example.billmanagement.repository.MemberRepository;
 import org.example.billmanagement.service.MemberService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.example.billmanagement.util.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,8 +41,17 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Member update(Member member) {
+    public Member update(Long groupId, Member member) {
         log.debug("Request to update Member : {}", member);
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new BadRequestAlertException("Entity not found", "group", "idnotfound"));
+        if (!memberRepository.existsById(member.getId())) {
+            throw new BadRequestAlertException("Entity not found", "member", "idnotfound");
+        }
+        // check user has right access
+        groupRepository.findByGroupIdAndUsername(groupId, SecurityUtils.getCurrentUsername())
+                        .orElseThrow(()-> new AccessDeniedException("IllegalAccess"));
+        member.setGroup(group);
         return memberRepository.save(member);
     }
 
@@ -50,6 +59,8 @@ public class MemberServiceImpl implements MemberService {
     @Transactional(readOnly = true)
     public Page<Member> findAll(Long groupId, Pageable pageable) {
         log.debug("Request to get all Members");
+        groupRepository.findByGroupIdAndUsername(groupId, SecurityUtils.getCurrentUsername())
+                .orElseThrow(()-> new AccessDeniedException("IllegalAccess"));
         return memberRepository.findAllByGroupId(groupId, pageable);
     }
 

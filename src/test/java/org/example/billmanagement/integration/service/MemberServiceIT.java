@@ -86,7 +86,7 @@ public class MemberServiceIT {
         Member savedMember = memberRepository.save(member);
         savedMember.setName("Jane Doe");
 
-        Member updatedMember = memberService.update(savedMember);
+        Member updatedMember = memberService.update(group.getId(), savedMember);
 
         assertEquals(savedMember.getId(), updatedMember.getId());
         assertEquals("Jane Doe", updatedMember.getName());
@@ -107,7 +107,7 @@ public class MemberServiceIT {
 
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<Member> membersPage = memberService.findAll(pageable);
+        Page<Member> membersPage = memberService.findAll(memberDto.getGroupId(), pageable);
 
         assertEquals(2, membersPage.getTotalElements());
         assertThat(membersPage.getContent()).extracting(Member::getName).containsExactly("John Doe", "Jane Doe");

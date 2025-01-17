@@ -32,8 +32,6 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    private final MemberRepository memberRepository;
-
     @PostMapping("")
     public ResponseEntity<Member> createMember(@Valid @RequestBody MemberDto memberDto) {
         log.debug("REST request to save Member : {}", memberDto);
@@ -41,23 +39,13 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(member);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{groupId}")
     public ResponseEntity<Member> updateMember(
-        @PathVariable(value = "id", required = false) final Long id,
+        @PathVariable(value = "groupId", required = false) final Long groupId,
         @Valid @RequestBody Member member){
-        log.debug("REST request to update Member : {}, {}", id, member);
-        if (member.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, member.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
+        log.debug("REST request to update Member : {}, {}", member.getId(), member);
 
-        if (!memberRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        member = memberService.update(member);
+        member = memberService.update(groupId,member);
         return ResponseEntity.ok().body(member);
     }
 

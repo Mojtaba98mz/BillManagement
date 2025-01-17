@@ -74,7 +74,7 @@ public class MemberControllerTest {
     @Test
     public void testUpdateMember_Success() {
         when(memberRepository.existsById(1L)).thenReturn(true);
-        when(memberService.update(any(Member.class))).thenReturn(member);
+        when(memberService.update(memberDto.getGroupId(), any(Member.class))).thenReturn(member);
 
         ResponseEntity<Member> response = memberController.updateMember(1L, member);
 
@@ -82,7 +82,7 @@ public class MemberControllerTest {
         assertEquals(member, response.getBody());
 
         verify(memberRepository, times(1)).existsById(1L);
-        verify(memberService, times(1)).update(any(Member.class));
+        verify(memberService, times(1)).update(memberDto.getGroupId(), any(Member.class));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class MemberControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
 
         verify(memberRepository, never()).existsById(anyLong());
-        verify(memberService, never()).update(any(Member.class));
+        verify(memberService, never()).update(memberDto.getGroupId(), any(Member.class));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class MemberControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
 
         verify(memberRepository, times(1)).existsById(1L);
-        verify(memberService, never()).update(any(Member.class));
+        verify(memberService, never()).update(memberDto.getGroupId(), any(Member.class));
     }
 
     @Test
