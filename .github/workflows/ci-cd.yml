@@ -49,7 +49,7 @@ jobs:
 
       - name: Copy Files to Server
         run: |
-          scp target/app.jar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+          scp target/BillManagement-0.0.1-SNAPSHOT.jar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
 
       - name: Run Deployment Script
         run: |
