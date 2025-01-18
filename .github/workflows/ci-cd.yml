@@ -1,0 +1,58 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Check out the repository code
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'  # Use Java 17 (or your preferred version)
+          distribution: 'temurin'  # Use Temurin JDK (or another distribution)
+
+      - name: Build with Maven
+        run: mvn clean package  # Build the project and run tests
+
+      - name: Run Tests
+        run: mvn verify  # Run unit tests (optional, as `package` already runs tests)
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.BILL_MANAGEMENT_CD }}
+
+      - name: Remove Old Jar on Server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          rm -f ${{ secrets.DEPLOY_PATH }}/app.jar
+          EOF
+
+      - name: Copy Files to Server
+        run: |
+          scp target/app.jar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+
+      - name: Run Deployment Script
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          cd ${{ secrets.DEPLOY_PATH }}
+          ./deploy.sh
+          EOF
+
+
+      
+
