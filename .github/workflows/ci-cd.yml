@@ -49,7 +49,7 @@ jobs:
           EOF
 
       - name: List Target Directory(for debugging)
-        run: ls -l target
+        run: pwd
 
       - name: Copy Files to Server
         run: |
