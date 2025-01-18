@@ -17,6 +17,34 @@
 ## Overview
 The **Bill Management System** is a Java Spring-based application that simplifies expense sharing among groups. It tracks user contributions, computes balances, and determines how much money members owe each other to settle debts.
 
+## Swagger UI
+
+To access the Swagger UI for the API documentation, navigate to:
+
+- **Swagger UI URL**: `http://185.204.197.57:8080/swagger-ui/index.html`
+
+The Swagger UI will give you a user-friendly interface to interact with your API endpoints.
+
+---
+
+## CI/CD Pipeline
+
+This project is deployed using a CI/CD pipeline to automate build, test, and deployment processes. Below is an overview of the pipeline configuration.
+
+### CI/CD Pipeline Flow:
+
+1. **Build Job**:
+    - Triggered on each push to the `master` branch.
+    - The pipeline checks out the code from the repository, sets up Java 17, and runs `mvn clean package` to build the project and run tests.
+
+2. **Deploy Job**:
+    - After the build job is successfully completed, the deployment job is triggered.
+    - The job sets up SSH keys and removes the previous `app.jar` from the server.
+    - The new `app.jar` is copied to the server and the deployment script (`deploy.sh`) is executed.
+
+### Pipeline Configuration:
+You can view the full pipeline configuration in the `.github/workflows/deploy.yml` file.
+
 ### Core Features
 - **User and Group Management:** Users can create and join groups with descriptive titles.
 - **Member Tracking:** Groups can have multiple members, each identified by their name.
