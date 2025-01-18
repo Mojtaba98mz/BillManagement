@@ -234,6 +234,8 @@ public class MemberServiceTest {
 
     @Test
     void testDelete() {
+        when(securityUtils.getCurrentUsername()).thenReturn("testuser");
+        when(memberRepository.findByMemberIdAndUsername(1L,"testuser")).thenReturn(Optional.of(member));
         doNothing().when(memberRepository).deleteById(1L);
 
         memberService.delete(1L);

@@ -29,7 +29,7 @@ public class Member {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<Bill> bills = new HashSet<>();
 

@@ -175,6 +175,7 @@ public class MemberControllerIT {
     @Test
     public void deleteMember() throws Exception {
         // Initialize the database
+        member.setGroup(group);
         memberRepository.saveAndFlush(member);
 
         int databaseSizeBeforeDelete = memberRepository.findAll().size();

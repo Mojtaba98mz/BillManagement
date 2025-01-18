@@ -52,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
         }
         // check user has right access
         groupRepository.findByGroupIdAndUsername(groupId, securityUtils.getCurrentUsername())
-                        .orElseThrow(()-> new AccessDeniedException("IllegalAccess"));
+                .orElseThrow(() -> new AccessDeniedException("IllegalAccess"));
         member.setGroup(group);
         return memberRepository.save(member);
     }
@@ -62,7 +62,7 @@ public class MemberServiceImpl implements MemberService {
     public Page<Member> findAll(Long groupId, Pageable pageable) {
         log.debug("Request to get all Members");
         groupRepository.findByGroupIdAndUsername(groupId, securityUtils.getCurrentUsername())
-                .orElseThrow(()-> new AccessDeniedException("IllegalAccess"));
+                .orElseThrow(() -> new AccessDeniedException("IllegalAccess"));
         return memberRepository.findAllByGroupId(groupId, pageable);
     }
 
@@ -76,6 +76,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Member : {}", id);
+        memberRepository.findByMemberIdAndUsername(id, securityUtils.getCurrentUsername())
+                .orElseThrow(() -> new AccessDeniedException("IllegalAccess"));
+        memberRepository.deleteBillsByMemberId(id);
         memberRepository.deleteById(id);
     }
 }

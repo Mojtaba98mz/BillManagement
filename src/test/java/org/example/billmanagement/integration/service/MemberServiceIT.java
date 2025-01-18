@@ -146,7 +146,9 @@ public class MemberServiceIT {
 
     @Test
     @Rollback
+    @WithMockUser("testuser")
     public void testDeleteMember() {
+        member.setGroup(group);
         Member savedMember = memberRepository.save(member);
 
         memberService.delete(savedMember.getId());
