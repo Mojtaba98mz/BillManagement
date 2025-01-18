@@ -7,7 +7,9 @@ import org.example.billmanagement.controller.dto.GroupDto;
 import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Group;
 import org.example.billmanagement.model.User;
+import org.example.billmanagement.repository.BillRepository;
 import org.example.billmanagement.repository.GroupRepository;
+import org.example.billmanagement.repository.MemberRepository;
 import org.example.billmanagement.repository.UserRepository;
 import org.example.billmanagement.service.GroupService;
 import org.example.billmanagement.util.SecurityUtils;
@@ -26,6 +28,8 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
+    private final BillRepository billRepository;
     private final SecurityUtils securityUtils;
 
     @Override
@@ -67,6 +71,13 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Group : {}", id);
+        userRepository.findOneByUsername(securityUtils.getCurrentUsername())
+                .orElseThrow(() -> new EntityNotFoundException("Entity User not found"));
+        // Delete bills and members associated with the group
+        billRepository.deleteByGroupId(id);
+        memberRepository.deleteByGroupId(id);
+
+        // Finally, delete the group
         groupRepository.deleteById(id);
     }
 }

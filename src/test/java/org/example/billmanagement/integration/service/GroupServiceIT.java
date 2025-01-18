@@ -124,6 +124,7 @@ class GroupServiceIT {
     }
 
     @Test
+    @WithMockUser("testuser")
     void testDeleteGroup() {
         Group group = new Group();
         group.setTitle("Test Group");

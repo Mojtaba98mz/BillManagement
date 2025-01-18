@@ -29,7 +29,7 @@ public class Group {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<Member> members = new HashSet<>();
 
