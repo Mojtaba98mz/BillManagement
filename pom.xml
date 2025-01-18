@@ -99,6 +99,56 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <!-- Surefire Plugin for Unit Tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*IT.java</exclude> <!-- Exclude integration tests -->
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Failsafe Plugin for Integration Tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <from>
+                        <image>eclipse-temurin:17-jdk-alpine</image>
+                    </from>
+                    <to>
+                        <image>bill-management</image>
+                    </to>
+                    <container>
+                        <ports>
+                            <port>8080</port>
+                        </ports>
+                        <environment>
+                            <SPRING_DATASOURCE_URL>jdbc:postgresql://db:5432/billmanagement</SPRING_DATASOURCE_URL>
+                            <SPRING_DATASOURCE_USERNAME>postgres</SPRING_DATASOURCE_USERNAME>
+                            <SPRING_DATASOURCE_PASSWORD>postgres</SPRING_DATASOURCE_PASSWORD>
+                        </environment>
+                    </container>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
