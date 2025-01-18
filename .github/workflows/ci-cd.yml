@@ -22,8 +22,8 @@ jobs:
       - name: Build with Maven
         run: mvn clean package  # Build the project and run tests
 
-      - name: Run Tests
-        run: mvn verify  # Run unit tests (optional, as `package` already runs tests)
+#      - name: Run Tests
+#        run: mvn verify  # Run unit tests (optional, as `package` already runs tests)
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -47,6 +47,9 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
           rm -f ${{ secrets.DEPLOY_PATH }}/app.jar
           EOF
+
+      - name: List Target Directory(for debugging)
+        run: ls -l target
 
       - name: Copy Files to Server
         run: |
