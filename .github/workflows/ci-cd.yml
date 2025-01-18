@@ -22,8 +22,9 @@ jobs:
       - name: Build with Maven
         run: mvn clean package  # Build the project and run tests
 
-#      - name: Run Tests
-#        run: mvn verify  # Run unit tests (optional, as `package` already runs tests)
+      - name: Run Tests
+        run: mvn verify  # Run unit tests (optional, as `package` already runs tests)
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -49,7 +50,7 @@ jobs:
           EOF
 
       - name: List Target Directory(for debugging)
-        run: pwd
+        run: ls
 
       - name: Copy Files to Server
         run: |
