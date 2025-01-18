@@ -24,7 +24,11 @@ jobs:
 
       - name: Run Tests
         run: mvn verify  # Run unit tests (optional, as `package` already runs tests)
-
+      - name: Upload JAR as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-jar
+          path: target/BillManagement-0.0.1-SNAPSHOT.jar  # Upload the generated JAR file
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -49,12 +53,14 @@ jobs:
           rm -f ${{ secrets.DEPLOY_PATH }}/app.jar
           EOF
 
-      - name: List Target Directory(for debugging)
-        run: ls
+      - name: Download JAR Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-jar  # Download the artifact uploaded in the build job
 
       - name: Copy Files to Server
         run: |
-          scp target/BillManagement-0.0.1-SNAPSHOT.jar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+          scp BillManagement-0.0.1-SNAPSHOT.jar ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
 
       - name: Run Deployment Script
         run: |
