@@ -4,15 +4,17 @@
 
 ## 📋 Table of Contents
 1. [Project Overview](#overview)
-2. [Core Features](#core-features)
-3. [Project Structure](#project-structure)
-4. [Entities](#key-entities)
-5. [Minimum Requirements](#minimum-requirements)
-6. [Build and Deploy](#build-and-deploy)
-7. [API Endpoints](#api-endpoints)
-8. [Configuration](#configuration)
-9. [Contact Us](#-contact-us)
-10. [License](#license)
+2. [Swagger UI](#swagger-ui)
+3. [CI CD Pipeline](#ci-cd-pipeline)
+4. [Core Features](#core-features)
+5. [Project Structure](#project-structure)
+6. [Entities](#key-entities)
+7. [Minimum Requirements](#minimum-requirements)
+8. [Build and Deploy](#build-and-deploy)
+9. [API Endpoints](#api-endpoints)
+10. [Configuration](#configuration)
+11. [Contact Us](#-contact-us)
+12. [License](#license)
 
 ## Overview
 The **Bill Management System** is a Java Spring-based application that simplifies expense sharing among groups. It tracks user contributions, computes balances, and determines how much money members owe each other to settle debts.
@@ -27,7 +29,7 @@ The Swagger UI will give you a user-friendly interface to interact with your API
 
 ---
 
-## CI/CD Pipeline
+## CI CD Pipeline
 
 This project is deployed using a CI/CD pipeline to automate build, test, and deployment processes. Below is an overview of the pipeline configuration.
 
