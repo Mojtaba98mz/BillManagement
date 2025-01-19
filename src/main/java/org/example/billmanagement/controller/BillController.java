@@ -37,28 +37,19 @@ public class BillController {
         return ResponseEntity.status(HttpStatus.CREATED).body(bill);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Bill> updateBill(@PathVariable(value = "id", required = false) final Long id, @RequestBody Bill bill) {
-        log.debug("REST request to update Bill : {}, {}", id, bill);
-        if (bill.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, bill.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!billRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+    @PutMapping("")
+    public ResponseEntity<Bill> updateBill(@RequestBody Bill bill) {
+        log.debug("REST request to update Bill : {}, {}", bill.getId(), bill);
 
         bill = billService.update(bill);
         return ResponseEntity.ok().body(bill);
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Bill>> getAllBills(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<Bill>> getAllBills(@RequestParam(value = "memberId") final Long memberId,
+                                                  @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get a page of Bills");
-        Page<Bill> page = billService.findAll(pageable);
+        Page<Bill> page = billService.findAll(memberId, pageable);
         return ResponseEntity.ok().body(page.getContent());
     }
 

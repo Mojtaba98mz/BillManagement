@@ -3,9 +3,13 @@ package org.example.billmanagement.integration.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.billmanagement.controller.dto.BillDto;
 import org.example.billmanagement.model.Bill;
+import org.example.billmanagement.model.Group;
 import org.example.billmanagement.model.Member;
+import org.example.billmanagement.model.User;
 import org.example.billmanagement.repository.BillRepository;
+import org.example.billmanagement.repository.GroupRepository;
 import org.example.billmanagement.repository.MemberRepository;
+import org.example.billmanagement.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +43,12 @@ public class BillControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    GroupRepository groupRepository;
+
     private Bill bill;
     private Member member;
     private BillDto billDto;
@@ -49,15 +59,28 @@ public class BillControllerIT {
         billRepository.deleteAll();
         memberRepository.deleteAll();
 
-        // Create a test bill
-        bill = new Bill();
-        bill.setAmount(100.0F);
-        bill = billRepository.save(bill); // Save to the actual database
+        User user = User.builder().username("testuser")
+                .firstName("F")
+                .lastName("L")
+                .password("p".repeat(60))
+                .build();
+        userRepository.save(user);
+        Group group = new Group();
+        group.setTitle("Test Group");
+        group.setUser(user);
+        group = groupRepository.save(group);
 
         // Create and save a Member entity
         member = new Member();
         member.setName("John Doe");
+        member.setGroup(group);
         member = memberRepository.save(member);
+
+        // Create a test bill
+        bill = new Bill();
+        bill.setAmount(100.0F);
+        bill.setMember(member);
+        bill = billRepository.save(bill); // Save to the actual database
 
         // Create a BillDto
         billDto = new BillDto();
@@ -83,7 +106,7 @@ public class BillControllerIT {
     public void testUpdateBill() throws Exception {
         bill.setAmount(150.0F);
 
-        mockMvc.perform(put("/api/bills/{id}", bill.getId())
+        mockMvc.perform(put("/api/bills")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(bill)))
                 .andExpect(status().isOk())
@@ -94,6 +117,7 @@ public class BillControllerIT {
     @Test
     public void testGetAllBills() throws Exception {
         mockMvc.perform(get("/api/bills")
+                        .param("memberId", member.getId().toString())
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
@@ -118,25 +142,5 @@ public class BillControllerIT {
         // Verify the bill is deleted
         mockMvc.perform(get("/api/bills/{id}", bill.getId()))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void testUpdateBillWithInvalidIdShouldFail() throws Exception {
-        bill.setId(999L); // ID mismatch
-
-        mockMvc.perform(put("/api/bills/{id}", 1L) // Path variable ID is 1
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(bill)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testUpdateBillWithNonExistingIdShouldFail() throws Exception {
-        bill.setId(999L); // Non-existing ID
-
-        mockMvc.perform(put("/api/bills/{id}", 999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(billDto)))
-                .andExpect(status().isBadRequest());
     }
 }

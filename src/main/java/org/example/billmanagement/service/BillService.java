@@ -13,7 +13,7 @@ public interface BillService {
 
     Bill update(Bill bill);
 
-    Page<Bill> findAll(Pageable pageable);
+    Page<Bill> findAll(Long memberId, Pageable pageable);
 
     Optional<Bill> findOne(Long id);
 

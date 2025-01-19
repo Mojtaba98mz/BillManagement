@@ -2,11 +2,13 @@ package org.example.billmanagement.unit.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.example.billmanagement.controller.dto.BillDto;
+import org.example.billmanagement.controller.exception.BadRequestAlertException;
 import org.example.billmanagement.model.Bill;
 import org.example.billmanagement.model.Member;
 import org.example.billmanagement.repository.BillRepository;
 import org.example.billmanagement.repository.MemberRepository;
 import org.example.billmanagement.service.impl.BillServiceImpl;
+import org.example.billmanagement.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Optional;
 
@@ -29,6 +32,9 @@ public class BillServiceTest {
 
     @Mock
     private BillRepository billRepository;
+
+    @Mock
+    private SecurityUtils securityUtils;
 
     @InjectMocks
     private BillServiceImpl billService;
@@ -82,28 +88,76 @@ public class BillServiceTest {
     }
 
     @Test
-    void testUpdate() {
-        when(billRepository.save(bill)).thenReturn(bill);
+    void testUpdateBill_Success() {
+        // Arrange
+        Bill billToUpdate = Bill.builder().id(1L).amount(100F).build();
+        String currentUsername = "testUser";
 
-        Bill updatedBill = billService.update(bill);
+        when(billRepository.existsById(billToUpdate.getId())).thenReturn(true);
+        when(securityUtils.getCurrentUsername()).thenReturn(currentUsername);
+        Bill existingBill = Bill.builder().id(1L).amount(50F).build();
+        when(billRepository.findByBillIdAndUsername(billToUpdate.getId(), currentUsername))
+                .thenReturn(Optional.of(existingBill));
+        when(billRepository.save(any(Bill.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertNotNull(updatedBill);
-        assertEquals(bill.getId(), updatedBill.getId());
-        assertEquals(bill.getAmount(), updatedBill.getAmount());
-        verify(billRepository, times(1)).save(bill);
+        // Act
+        Bill updatedBill = billService.update(billToUpdate);
+
+        // Assert
+        assertEquals(billToUpdate.getAmount(), updatedBill.getAmount());
+        verify(billRepository, times(1)).existsById(billToUpdate.getId());
+        verify(billRepository, times(1)).findByBillIdAndUsername(billToUpdate.getId(), currentUsername);
+        verify(billRepository, times(1)).save(existingBill);
+    }
+
+    @Test
+    void testUpdateBill_BillNotFound() {
+        // Arrange
+        Bill billToUpdate = Bill.builder().id(1L).amount(100F).build();
+
+        when(billRepository.existsById(billToUpdate.getId())).thenReturn(false);
+
+        // Act & Assert
+        BadRequestAlertException exception = assertThrows(BadRequestAlertException.class, () -> {
+            billService.update(billToUpdate);
+        });
+
+        verify(billRepository, times(1)).existsById(billToUpdate.getId());
+        verify(billRepository, never()).findByBillIdAndUsername(anyLong(), anyString());
+        verify(billRepository, never()).save(any());
+    }
+
+    @Test
+    void testUpdateBill_AccessDenied() {
+        // Arrange
+        Bill billToUpdate = Bill.builder().id(1L).amount(100F).build();
+        String currentUsername = "testUser";
+
+        when(billRepository.existsById(billToUpdate.getId())).thenReturn(true);
+        when(securityUtils.getCurrentUsername()).thenReturn(currentUsername);
+        when(billRepository.findByBillIdAndUsername(billToUpdate.getId(), currentUsername))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> {
+            billService.update(billToUpdate);
+        });
+
+        assertEquals("IllegalAccess", exception.getMessage());
+        verify(billRepository, times(1)).existsById(billToUpdate.getId());
+        verify(billRepository, times(1)).findByBillIdAndUsername(billToUpdate.getId(), currentUsername);
+        verify(billRepository, never()).save(any());
     }
 
     @Test
     void testFindAll() {
+        when(securityUtils.getCurrentUsername()).thenReturn("testuser");
         Pageable pageable = mock(Pageable.class);
         Page<Bill> billPage = mock(Page.class);
-        when(billRepository.findAll(pageable)).thenReturn(billPage);
+        when(billRepository.findByMemberIdAndUsername(1L,"testuser",pageable)).thenReturn(billPage);
 
-        Page<Bill> result = billService.findAll(pageable);
-
-        assertNotNull(result);
+        Page<Bill> result = billService.findAll(1L, pageable);
         assertEquals(billPage, result);
-        verify(billRepository, times(1)).findAll(pageable);
     }
 
     @Test

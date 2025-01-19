@@ -14,10 +14,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -69,58 +71,33 @@ public class BillControllerTest {
     }
 
     @Test
-    public void testUpdateBill_Success() {
-        when(billRepository.existsById(1L)).thenReturn(true);
-        when(billService.update(any(Bill.class))).thenReturn(bill);
+    void testUpdateBill_Success() {
+        when(billService.update(bill)).thenReturn(bill);
 
-        ResponseEntity<Bill> response = billController.updateBill(1L, bill);
+        ResponseEntity<Bill> response = billController.updateBill(bill);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(200, response.getStatusCode().value());
         assertEquals(bill, response.getBody());
-
-        verify(billRepository, times(1)).existsById(1L);
-        verify(billService, times(1)).update(any(Bill.class));
+        verify(billService, times(1)).update(bill);
     }
 
     @Test
-    public void testUpdateBill_InvalidId() {
-        bill.setId(2L); // ID mismatch
+    void testGetAllBills() {
+        Long memberId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Bill> bills = Arrays.asList(
+                Bill.builder().id(1L).amount(100F).build(),
+                Bill.builder().id(2L).amount(200F).build()
+        );
+        Page<Bill> billPage = new PageImpl<>(bills, pageable, bills.size());
 
-        BadRequestAlertException exception = assertThrows(BadRequestAlertException.class, () -> {
-            billController.updateBill(1L, bill);
-        });
+        when(billService.findAll(memberId, pageable)).thenReturn(billPage);
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        ResponseEntity<List<Bill>> response = billController.getAllBills(memberId, pageable);
 
-        verify(billRepository, never()).existsById(anyLong());
-        verify(billService, never()).update(any(Bill.class));
-    }
-
-    @Test
-    public void testUpdateBill_EntityNotFound() {
-        when(billRepository.existsById(1L)).thenReturn(false);
-
-        BadRequestAlertException exception = assertThrows(BadRequestAlertException.class, () -> {
-            billController.updateBill(1L, bill);
-        });
-
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-
-        verify(billRepository, times(1)).existsById(1L);
-        verify(billService, never()).update(any(Bill.class));
-    }
-
-    @Test
-    public void testGetAllBills_Success() {
-        when(billService.findAll(any(Pageable.class))).thenReturn(billPage);
-
-        ResponseEntity<List<Bill>> response = billController.getAllBills(Pageable.unpaged());
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        assertEquals(bill, response.getBody().get(0));
-
-        verify(billService, times(1)).findAll(any(Pageable.class));
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(bills, response.getBody());
+        verify(billService, times(1)).findAll(memberId, pageable);
     }
 
     @Test
